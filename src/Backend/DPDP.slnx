@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="../../tests/DPDP.ApiTests/DPDP.ApiTests.csproj" />
+  <Project Path="../../tests/DPDP.IntegrationTests/DPDP.IntegrationTests.csproj" />
+  <Project Path="../../tests/DPDP.UnitTests/DPDP.UnitTests.csproj" />
+  <Project Path="DPDP.Api/DPDP.Api.csproj" />
+  <Project Path="DPDP.Application/DPDP.Application.csproj" />
+  <Project Path="DPDP.Domain/DPDP.Domain.csproj" />
+  <Project Path="DPDP.Infrastructure/DPDP.Infrastructure.csproj" />
+</Solution>

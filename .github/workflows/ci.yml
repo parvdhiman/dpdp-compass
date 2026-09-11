@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend build & test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: dpdp_compass
+          POSTGRES_USER: dpdp_compass_app1
+          POSTGRES_PASSWORD: ci_only_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dpdp_compass_app1 -d dpdp_compass"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      ConnectionStrings__Default: "Host=localhost;Port=5432;Database=dpdp_compass;Username=dpdp_compass_app1;Password=ci_only_password"
+      # CI-only signing key — every run gets a fresh, disposable database
+      # and process, so there is no persisted token this could ever protect.
+      Jwt__SigningKey: "ci-only-signing-key-not-used-anywhere-else-0123456789"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore src/Backend/DPDP.slnx
+
+      - name: Build
+        run: dotnet build src/Backend/DPDP.slnx --no-restore -c Release
+
+      - name: Apply database migrations
+        run: |
+          dotnet tool install --global dotnet-ef --version 10.*
+          dotnet ef database update \
+            --project src/Backend/DPDP.Infrastructure \
+            --startup-project src/Backend/DPDP.Api
+
+      - name: Test
+        run: dotnet test src/Backend/DPDP.slnx --no-build -c Release --logger "trx"
+
+  frontend:
+    name: Frontend build & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: src/Frontend/dpdp-web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/Frontend/dpdp-web
+        run: npm ci
+
+      - name: Lint
+        working-directory: src/Frontend/dpdp-web
+        run: npm run lint
+
+      - name: Test
+        working-directory: src/Frontend/dpdp-web
+        run: npm run test
+
+      - name: Build
+        working-directory: src/Frontend/dpdp-web
+        run: npm run build

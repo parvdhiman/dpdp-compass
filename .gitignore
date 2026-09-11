@@ -1,0 +1,46 @@
+# --- Secrets ---------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pfx
+*.pem
+**/appsettings.*.local.json
+
+# --- .NET -------------------------------------------------------------
+bin/
+obj/
+*.user
+*.suo
+.vs/
+logs/
+*.log
+
+# FileSystemObjectStorageService's local disk root (Module 7) — never the
+# real storage backend in a deployed environment, see docs/EVIDENCE_STORAGE.md.
+src/Backend/DPDP.Api/storage/
+
+# ASP.NET Core Data Protection keyring (Module 8) — encrypts DataSource
+# connection secrets at rest; never committed, and a shared/durable path
+# is required for any multi-instance deployment, see docs/DATA_DISCOVERY.md.
+src/Backend/DPDP.Api/dataprotection-keys/
+
+# --- Node / Frontend ----------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# --- Test / coverage ----------------------------------------------------
+TestResults/
+coverage/
+*.trx
+
+# --- Docker -------------------------------------------------------------
+deployment/data/
+
+# --- OS / editor ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
